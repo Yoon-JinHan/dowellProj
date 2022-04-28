@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 사용자 정보 Mapper -->
+<mapper namespace="com.dowell.mapper.UserMapper">
+	<resultMap type="com.dowell.domain.UserVO" id="userMap">
+		<id property="user_id" column="user_id"/>
+		<result property="user_id" column="user_id"/>
+		<result property="user_nm" column="user_nm"/>
+		<result property="use_pwd" column="use_pwd"/>
+		<result property="sd_dt" column="sd_dt"/>
+		<result property="ed_dt" column="ed_dt"/>
+		<result property="prt_cd" column="prt_cd"/>
+		<result property="prt_nm" column="prt_nm"/>
+		<result property="pwd_upd_dt" column="pwd_upd_dt"/>
+		<result property="fst_reg_dt" column="fst_reg_dt"/>
+		<result property="fst_user_id" column="fst_user_id"/>
+		<result property="lst_upd_dt" column="lst_upd_dt"/>
+		<result property="lst_upd_id" column="lst_upd_id"/>
+		<result property="enabled" column="enabled"/>
+		<result property="auth" column="auth"/>
+		<collection property="authList" resultMap="authMap"/>
+	</resultMap>
+	<resultMap type="com.dowell.domain.AuthVO" id="authMap">
+		<result property="user_id" column="user_id"/>
+		<result property="auth" column="auth"/>
+	</resultMap>
+	
+	<select id="read" resultMap="userMap">
+	<![CDATA[
+		SELECT u.user_id as user_id			--사용자ID
+		    , u.user_nm as user_nm			--사용자 이름
+		    , u.use_pwd as use_pwd			--사용자 비밀번호
+		    , u.st_dt as st_dt				--시작일
+		    , u.ed_dt as ed_dt				--종료일
+		    , u.prt_cd as prt_cd			--거래처 코드
+		    , p.prt_nm as prt_nm			--거래처 명
+		    , u.pwd_upd_dt as pwd_upd_dt	--비밀번호 변경일
+		    , u.fst_reg_dt as fst_reg_dt	--생성일
+		    , u.fst_user_id as fst_user_id	--생성자
+		    , u.lst_upd_dt as lst_upd_dt	--수정일
+		    , u.lst_upd_id as lst_upd_id	--수정자
+		    , CASE WHEN u.use_yn in ('0', 'Y') THEN '1'
+		      ELSE '0'
+		      END as enabled				--사용가능 여부
+		    , CASE WHEN u.user_dt_cd='1' THEN 'ROLE_ADMIN'
+		      ELSE 'ROLE_USER'
+		      END as auth					--권한
+		FROM ma_user_mt u JOIN MA_PRT_MT p ON u.prt_cd=p.prt_cd
+		WHERE u.user_id=#{user_id} 
+	]]>	
+	</select>
+</mapper>

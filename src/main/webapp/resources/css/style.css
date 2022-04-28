@@ -1,0 +1,19 @@
+@charset "UTF-8";
+
+/* sidebar.jsp */
+.sidebar{
+	background-position:center;
+	background-size:cover;
+	background-color: #3399ff;
+}
+.bottom-border{
+	border-bottom: 2px groove white;
+}
+.sidebar-link{
+	transition: all .4s;
+}
+
+.sidebar-link:hover{
+	background-color:#3191f0;
+	border-radius:5px;
+}

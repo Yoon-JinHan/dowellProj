@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.dowell.mapper.CustomerMapper">
+
+	<select id="getList" resultType="com.dowell.domain.CustomerVO">
+		<![CDATA[
+		select cust_no		--고객번호
+			, cust_nm		--고객명
+			, mbl_no		--휴대번호
+		from cs_cust01_mt
+		where jn_prt_cd='B0000001']]>
+	</select>
+
+</mapper>

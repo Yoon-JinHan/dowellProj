@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dowell.mapper.CustomerBoardMapper">
+	<!-- 고객 리스트 가져오는 쿼리 -->
+	<select id="getList" resultType="com.dowell.domain.CustomerBoardVO">
+		<![CDATA[
+			SELECT c.cust_no AS no										--고객번호
+	    		 , c.cust_nm AS name									--고객명
+	    		 , c.mbl_no AS mbl										--휴대폰번호
+	    		 , cd.dtl_cd_nm AS state								--고객상태
+	    		 , c.cust_ss_cd AS statecd								--고객상태코드
+	    		 , c.js_dt AS joindt									--가입일자
+	    		 , p.prt_nm AS prt										--가입매장
+	    		 , c.jn_prt_cd AS prtcd									--가입매장 코드
+	    		 , CONCAT(CONCAT(c.fst_user_id,'/'),m.user_nm) AS reg	--등록자
+	    		 , c.lst_upd_dt AS upd									--수정일자
+			FROM CS_CUST01_MT c JOIN MA_USER_MT m ON c.fst_user_id = m.user_id								--등록자 가져오기 위한 조인
+	                    		JOIN MA_CODE_DT cd ON cd.code_cd='CUST_SS_CD' AND cd.dtl_cd=c.cust_ss_cd	--고객상태명을 가져오기 위한 조인
+	                    		JOIN MA_PRT_MT p ON p.prt_cd=c.jn_prt_cd									--가입매장명을 가져오기 위한 조인
+		]]>	
+		
+		<choose>
+			<!-- cusno이 검색조건에 없는 경우 -->
+			<when test="cusprt != null and cusprt!='' and (cusno == null or cusno =='')">
+				<choose>
+	    			<when test='@com.dowell.util.CustomerUtil@checkPrtcd(prtcd) eq "A"'>
+						<![CDATA[ 
+							WHERE TO_DATE(c.js_dt,'YYYY-MM-DD') BETWEEN TO_DATE(#{start}, 'YYYY-MM-DD') AND TO_DATE(#{end}, 'YYYY-MM-DD') AND c.jn_prt_cd=#{cusprt} AND c.cust_ss_cd LIKE '%'||#{state}||'%'
+							ORDER BY c.cust_no
+						]]>
+	    			</when>
+	    			<otherwise>
+						<![CDATA[ 
+							WHERE c.jn_prt_cd=#{prtcd} AND TO_DATE(c.js_dt,'YYYY-MM-DD') BETWEEN TO_DATE(#{start}, 'YYYY-MM-DD') AND TO_DATE(#{end}, 'YYYY-MM-DD') AND c.cust_ss_cd LIKE '%'||#{state}||'%'
+							ORDER BY c.cust_no
+						]]>
+	    			</otherwise>
+	    		</choose>
+			</when>
+			
+			<!-- cusprt가 검색 조건에 없는 경우 -->
+			<when test="(cusprt==null or cusprt=='') and cusno!=null and cusno!=''">
+				<choose>
+	    			<when test='@com.dowell.util.CustomerUtil@checkPrtcd(prtcd) eq "A"'>
+						<![CDATA[ 
+							WHERE TO_DATE(c.js_dt,'YYYY-MM-DD') BETWEEN TO_DATE(#{start}, 'YYYY-MM-DD') AND TO_DATE(#{end}, 'YYYY-MM-DD') AND c.cust_no=#{cusno} AND c.cust_ss_cd LIKE '%'||#{state}||'%'
+							ORDER BY c.cust_no
+						]]>
+	    			</when>
+	    			<otherwise>
+						<![CDATA[ 
+							WHERE c.jn_prt_cd=#{prtcd} AND TO_DATE(c.js_dt,'YYYY-MM-DD') BETWEEN TO_DATE(#{start}, 'YYYY-MM-DD') AND TO_DATE(#{end}, 'YYYY-MM-DD') AND c.cust_no=#{cusno} AND c.cust_ss_cd LIKE '%'||#{state}||'%'
+							ORDER BY c.cust_no
+						]]>
+	    			</otherwise>
+	    		</choose>
+			</when>
+			
+			<!-- 모든 조건 검색 -->
+			<when test="cusprt!=null and cusprt!='' and cusno!=null and cusno!=''">
+				<choose>
+	    			<when test='@com.dowell.util.CustomerUtil@checkPrtcd(prtcd) eq "A"'>
+						<![CDATA[ 
+							WHERE TO_DATE(c.js_dt,'YYYY-MM-DD') BETWEEN TO_DATE(#{start}, 'YYYY-MM-DD') AND TO_DATE(#{end}, 'YYYY-MM-DD') AND c.cust_no=#{cusno} AND c.cust_ss_cd LIKE '%'||#{state}||'%' AND c.jn_prt_cd=#{cusprt}
+							ORDER BY c.cust_no
+						]]>
+	    			</when>
+	    			<otherwise>
+						<![CDATA[ 
+							WHERE c.jn_prt_cd=#{prtcd} AND TO_DATE(c.js_dt,'YYYY-MM-DD') BETWEEN TO_DATE(#{start}, 'YYYY-MM-DD') AND TO_DATE(#{end}, 'YYYY-MM-DD') AND c.cust_no=#{cusno} AND c.cust_ss_cd LIKE '%'||#{state}||'%' 
+							ORDER BY c.cust_no
+						]]>
+	    			</otherwise>
+	    		</choose>
+			</when>
+			
+			<!-- 기본조건만 검색 -->
+			<when test="(cusprt==null or cusprt=='') and (cusno == null or cusno =='') and state!=null">
+				<choose>
+	    			<when test='@com.dowell.util.CustomerUtil@checkPrtcd(prtcd) eq "A"'>
+						<![CDATA[ 
+							WHERE TO_DATE(c.js_dt,'YYYY-MM-DD') BETWEEN TO_DATE(#{start}, 'YYYY-MM-DD') AND TO_DATE(#{end}, 'YYYY-MM-DD') AND c.cust_ss_cd LIKE '%'||#{state}||'%'
+							ORDER BY c.cust_no
+						]]>
+	    			</when>
+	    			<otherwise>
+						<![CDATA[ 
+							WHERE c.jn_prt_cd=#{prtcd} AND TO_DATE(c.js_dt,'YYYY-MM-DD') BETWEEN TO_DATE(#{start}, 'YYYY-MM-DD') AND TO_DATE(#{end}, 'YYYY-MM-DD') AND c.cust_ss_cd LIKE '%'||#{state}||'%'
+							ORDER BY c.cust_no
+						]]>
+	    			</otherwise>
+	    		</choose>
+			</when>
+			
+			<!-- 처음화면 리스트 -->
+			<when test="(cusprt==null or cusprt=='') and (cusno == null or cusno =='') and state==null and start==null">
+				<choose>
+	    			<when test='@com.dowell.util.CustomerUtil@checkPrtcd(prtcd) eq "A"'>
+						<![CDATA[ 
+							WHERE c.js_dt BETWEEN TO_CHAR(SYSDATE-7, 'YYYYMMDD') AND TO_CHAR(SYSDATE, 'YYYYMMDD')
+							ORDER BY c.cust_no
+						]]>
+	    			</when>
+	    			<otherwise>
+						<![CDATA[ 
+							WHERE c.jn_prt_cd=#{prtcd} AND c.js_dt BETWEEN TO_CHAR(SYSDATE-7, 'YYYYMMDD') AND TO_CHAR(SYSDATE, 'YYYYMMDD')
+							ORDER BY c.cust_no
+						]]>
+	    			</otherwise>
+	    		</choose>
+			</when>
+		</choose>		
+	</select>
+	
+	<!-- 사용 안하는 mapper -->
+	<!--  
+	<select id="getList" parameterType="String" resultType="com.dowell.domain.CustomerBoardVO">
+		<![CDATA[
+			SELECT c.cust_no AS no										
+	    		 , c.cust_nm AS name									
+	    		 , c.mbl_no AS mbl										
+	    		 , cd.dtl_cd_nm AS state								
+	    		 , c.js_dt AS joindt									
+	    		 , p.prt_nm AS prt										
+	    		 , c.jn_prt_cd AS prtcd									
+	    		 , CONCAT(CONCAT(c.fst_user_id,'/'),m.user_nm) AS reg	
+	    		 , c.lst_upd_dt AS upd									
+			FROM CS_CUST01_MT c JOIN MA_USER_MT m ON c.fst_user_id = m.user_id
+	                    		JOIN MA_CODE_DT cd ON cd.code_cd='CUST_SS_CD' AND cd.dtl_cd=c.cust_ss_cd
+	                    		JOIN MA_PRT_MT p ON p.prt_cd=c.jn_prt_cd
+		]]>	
+		
+		권한에 따른 WHERE 조건 변경
+	    <choose>
+	    	<when test='@com.dowell.util.CustomerUtil@checkPrtcd(_parameter) eq "A"'>
+				<![CDATA[ 
+					WHERE c.js_dt BETWEEN TO_CHAR(SYSDATE-7, 'YYYYMMDD') AND TO_CHAR(SYSDATE, 'YYYYMMDD')
+					ORDER BY c.cust_no
+				]]>
+	    	</when>
+	    	<otherwise>
+				<![CDATA[ 
+					WHERE c.jn_prt_cd=#{prtcd} AND c.js_dt BETWEEN TO_CHAR(SYSDATE-7, 'YYYYMMDD') AND TO_CHAR(SYSDATE, 'YYYYMMDD')
+					ORDER BY c.cust_no
+				]]>
+	    	</otherwise>
+	    </choose>
+	</select>
+	 -->
+	 
+	<!-- 고객 조회할때 사용하는 쿼리 -->
+	<select id="getCustomer" resultType="com.dowell.domain.CustomerBoardVO">
+		<![CDATA[
+			SELECT c.cust_no as no              --고객번호
+    			, c.cust_nm as name             --고객명
+    			, c.mbl_no as mbl               --휴대폰번호
+    			, cd.dtl_cd_nm as state         --고객상태
+			FROM CS_CUST01_MT c JOIN MA_CODE_DT cd ON cd.code_cd='CUST_SS_CD' AND cd.dtl_cd=c.cust_ss_cd	--고객상태명을 가져오기 위한 조인
+		]]>
+		<!-- 파라메터의 갯수에 따른 조건 검색 -->
+		<choose>
+			<when test='name==null and mbl==null'>WHERE 1=1</when>
+			<when test='name!=null and mbl==null'>WHERE cust_nm LIKE '%'||#{name}||'%'</when>
+			<when test="(name==null or name=='') and mbl!=null">WHERE mbl_no=#{mbl}</when>
+			<when test='name!=null and mbl!=null'>WHERE cust_nm LIKE '%'||#{name}||'%' OR mbl_no=#{mbl}</when>
+		</choose>
+		
+	</select>
+	
+	<!-- 매장조회할 때 사용하는 쿼리 -->
+	<select id="getPrt" resultType="com.dowell.domain.PrtSearchVO">
+		<![CDATA[
+			SELECT prt_cd as cd             --매장코드
+    			, prt_nm as name            --매장명
+    			, cd.dtl_cd_nm as state     --매장상태
+			FROM MA_PRT_MT p JOIN MA_CODE_DT cd ON cd.code_cd='PRT_SS_CD' AND p.prt_ss_cd=cd.dtl_cd		--매장상태명을 가져오기 위한 조인
+			WHERE prt_dt_cd='2' 
+		]]>
+		<!-- 파라메터가 있는 경우 -->
+		<if test='keyword != null'>		
+			AND (prt_nm LIKE '%'||#{keyword}||'%' OR prt_cd LIKE '%'||#{keyword}||'%')
+		</if>
+	</select>
+	
+	<!-- 고객 변경 이력 조회할때 사용하는 쿼리 -->
+	<select id="getCusChg" parameterType="String" resultType="com.dowell.domain.CustomerChgVO">
+		<![CDATA[
+		SELECT sd.cust_no as cusno              --고객번호
+    		, cs.cust_nm as name                --고객명
+    		, sd.chg_dt as chgdt                --변경일자
+    		, sd.chg_cd as chgcd                --변경항목 코드
+    		, c.comments as chgnm               --변경항목명
+    		, sd.chg_bf_cnt as before           --변경전
+    		, sd.chg_aft_cnt as after           --변경후
+    		, sd.fst_user_id as userid          --수정자
+    		, ma.user_nm as uname               --수정자이름
+    		, sd.fst_reg_dt as regdt            --수정일시
+		FROM SD_CUST01_HT sd JOIN (
+    		SELECT *
+    		FROM ALL_COL_COMMENTS				--컬럼 comment, 컬럼 이름을 가져올 수 있음
+    		WHERE TABLE_NAME='CS_CUST01_MT'		
+		)c ON sd.chg_cd=c.column_name							--변경이력 테이블과 인라인 뷰를 조인하여 변경항목 코드에 맞는 이름을 가져올 수 있음
+    		JOIN CS_CUST01_MT cs ON sd.cust_no=cs.cust_no		--고객 이름 가져오기 위한 조인
+    		JOIN MA_USER_MT ma ON sd.fst_user_id=ma.user_id		--수정자 이름 가져오기 위한 조인
+		WHERE sd.cust_no='${value}'
+		ORDER BY sd.chg_seq desc
+		]]>
+	</select>
+	
+	<!-- MA_CODE_DT 가져올 때 사용하는 쿼리 -->
+	<select id="getCMDT" resultType="com.dowell.domain.CodeMasterDetailVO">
+		<![CDATA[
+		SELECT code_cd as code          --코드
+    		, dtl_cd as dtl             --세부코드
+    		, dtl_cd_nm as dtlnm        --세부코드명
+		FROM MA_CODE_DT
+		]]>
+	</select>
+</mapper>
